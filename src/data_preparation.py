@@ -1,32 +1,55 @@
 import pandas as pd
 import os
 
-# File path
+# === Load Excel sheet === #
 file_path = "data/Dataset.xlsx"
+df_raw = pd.read_excel(file_path, sheet_name="HousingServicesSpend", header=None)
 
-# Load sheets
-df_spend = pd.read_excel(file_path, sheet_name="HousingServicesSpend", header=None)
+# === Step 1: Extract header rows === #
+main_headers = df_raw.iloc[0].astype(str).str.replace(r"[\r\n]+", " ", regex=True).str.strip()
+sub_headers = df_raw.iloc[1].astype(str).str.replace(r"[\r\n]+", " ", regex=True).str.strip()
+
+# === Step 2: Construct final headers using R-like logic === #
+final_headers = []
+current_main = ""
+
+for i in range(len(main_headers)):
+    main = main_headers[i]
+    sub = sub_headers[i]
+
+    # If there's a valid main category in row 0, update it
+    if main and main.lower() != "nan" and main.strip() != "":
+        current_main = main.strip()
+
+    # Clean subcategory
+    sub = "" if sub.lower() == "nan" else sub.strip()
+
+    if current_main == "" and sub != "":
+        # Case: first few columns — no main, only sub
+        combined = f"_{sub}"
+    elif current_main != "" and sub != "":
+        combined = f"{current_main}_{sub}"
+    elif current_main != "":
+        combined = current_main
+    else:
+        combined = f"Unnamed_{i}"
+
+    final_headers.append(combined)
+
+# === Step 3: Apply final headers and drop first two rows === #
+df_spend = df_raw.iloc[2:].copy()
+df_spend.columns = final_headers
+
+# === Step 4: Rename authority code column === #
+if "_Local_authority_code" in df_spend.columns:
+    df_spend.rename(columns={"_Local_authority_code": "Local_authority_code"}, inplace=True)
+
+# === Step 5: Load other sheets === #
 df_claimants = pd.read_excel(file_path, sheet_name="HousingBenefitClaimants")
 df_population = pd.read_excel(file_path, sheet_name="PopulationEstimates")
 df_imd = pd.read_excel(file_path, sheet_name="IndexOfMultipleDeprivation")
 
-# --- Clean Multi-Level Header for Housing Spend ---
-sub_headers = df_spend.iloc[0].astype(str).str.replace('\r|\n', '', regex=True)
-main_headers = df_spend.columns.astype(str)
-new_headers = []
-current_main = ""
-for main, sub in zip(main_headers, sub_headers):
-    if not main.startswith("..."):
-        current_main = main
-    new_headers.append(f"{current_main}_{sub}" if sub else current_main)
-
-df_spend = df_spend.drop(index=0)
-df_spend.columns = new_headers
-
-# Rename authority code column
-df_spend = df_spend.rename(columns={df_spend.columns[0]: "Local_authority_code"})
-
-# --- Harmonize Authority Names ---
+# === Step 6: Harmonize Authority Names === #
 authority_mapping = {
     "Aylesbury Vale": "Buckinghamshire",
     "South Bucks": "Buckinghamshire",
@@ -41,22 +64,21 @@ authority_mapping = {
     "South Northamptonshire": "West Northamptonshire"
 }
 
-# Replace function
-def harmonize(df, col):
-    df[col] = df[col].replace(authority_mapping)
+def harmonize(df, col_name):
+    df[col_name] = df[col_name].replace(authority_mapping)
     return df
 
-# Harmonize across datasets
-df_spend = harmonize(df_spend, df_spend.columns[1])
+# Apply harmonization
+df_spend = harmonize(df_spend, df_spend.columns[2])  # Local authority name col
 df_claimants = harmonize(df_claimants, "Local authority name")
 df_population = harmonize(df_population, "local authority: district / unitary (as of April 2021)")
 df_imd = harmonize(df_imd, "Local Authority District name (2019)")
 
-# Save cleaned data
+# === Step 7: Save Cleaned Files === #
 os.makedirs("data/cleaned", exist_ok=True)
 df_spend.to_csv("data/cleaned/housing_spend_clean.csv", index=False)
 df_claimants.to_csv("data/cleaned/housing_claimants_clean.csv", index=False)
 df_population.to_csv("data/cleaned/population_estimates_clean.csv", index=False)
 df_imd.to_csv("data/cleaned/imd_data_clean.csv", index=False)
 
-print(" Stage 1 complete: Cleaned datasets saved.")
+print("Headers cleaned and files saved successfully.")
