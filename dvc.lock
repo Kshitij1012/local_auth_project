@@ -9,8 +9,8 @@ stages:
       size: 354405
     - path: src/data_preparation.py
       hash: md5
-      md5: babcdcc394fb43b720516d3646c01f28
-      size: 2396
+      md5: e0ed6119390ab58442a5a9ddc0de8479
+      size: 3262
     outs:
     - path: data/cleaned/housing_claimants_clean.csv
       hash: md5
@@ -18,8 +18,8 @@ stages:
       size: 21493
     - path: data/cleaned/housing_spend_clean.csv
       hash: md5
-      md5: 798a488bff7fa5f7cf3d73116881811d
-      size: 176568
+      md5: b3bb4b36ae94fdcca4102d559c57c1b6
+      size: 181818
     - path: data/cleaned/imd_data_clean.csv
       hash: md5
       md5: b4c81cae71be8fd046dac9a4e73d1afb
@@ -37,8 +37,8 @@ stages:
       size: 21493
     - path: data/cleaned/housing_spend_clean.csv
       hash: md5
-      md5: 798a488bff7fa5f7cf3d73116881811d
-      size: 176568
+      md5: b3bb4b36ae94fdcca4102d559c57c1b6
+      size: 181818
     - path: data/cleaned/imd_data_clean.csv
       hash: md5
       md5: b4c81cae71be8fd046dac9a4e73d1afb
@@ -49,20 +49,20 @@ stages:
       size: 49525
     - path: src/data_integration.py
       hash: md5
-      md5: d1bc7abdc8b1c1938f7c98d4683d8745
-      size: 778
+      md5: c9a42250206e9e38e55739e576ebfd3c
+      size: 4233
     outs:
     - path: data/merged/merged_data.csv
       hash: md5
-      md5: a51ee60bf9fbcb9eb8445d1fb9b9fb70
-      size: 188369
+      md5: a2cb30afe11403dc3e9325fa7a4439b5
+      size: 236789
   explore_data:
     cmd: python src/exploratory_analysis.py
     deps:
     - path: data/merged/merged_data.csv
       hash: md5
-      md5: a51ee60bf9fbcb9eb8445d1fb9b9fb70
-      size: 188369
+      md5: a2cb30afe11403dc3e9325fa7a4439b5
+      size: 236789
     - path: src/exploratory_analysis.py
       hash: md5
       md5: 6b46567da812b8b72a5a0387171905c0
@@ -70,9 +70,9 @@ stages:
     outs:
     - path: data/explore/quality_summary.csv
       hash: md5
-      md5: e32856253969855502720402d3aa2894
-      size: 4208
+      md5: b9d50f0e0bdd36dedecf3d5cdda83bd9
+      size: 15579
     - path: data/explore/usable_columns.csv
       hash: md5
-      md5: 6ee76a59c4ffbb57e5472e9409d0bd95
-      size: 2561
+      md5: 3ac30ea4240bf95598afcecd545c840e
+      size: 14689
