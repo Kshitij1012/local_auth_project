@@ -1,0 +1,8 @@
+[core]
+    remote = gcsremote
+['remote "gdrive_remote"']
+    url = gdrive://1HQUR9RVTJ2YNKv0e616bt5lF074niUj7
+    gdrive_use_service_account = false
+['remote "gcsremote"']
+    url = gs://local_auth_dataset
+    credentialpath = F:\Interview answers\Health Innovation\local_auth_project\dvc-key.json
