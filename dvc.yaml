@@ -19,3 +19,11 @@ stages:
     - src/data_integration.py
     outs:
     - data/merged/merged_data.csv
+  explore_data:
+    cmd: python src/exploratory_analysis.py
+    deps:
+    - data/merged/merged_data.csv
+    - src/exploratory_analysis.py
+    outs:
+    - data/explore/quality_summary.csv
+    - data/explore/usable_columns.csv

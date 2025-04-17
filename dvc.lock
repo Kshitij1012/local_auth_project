@@ -56,3 +56,23 @@ stages:
       hash: md5
       md5: a51ee60bf9fbcb9eb8445d1fb9b9fb70
       size: 188369
+  explore_data:
+    cmd: python src/exploratory_analysis.py
+    deps:
+    - path: data/merged/merged_data.csv
+      hash: md5
+      md5: a51ee60bf9fbcb9eb8445d1fb9b9fb70
+      size: 188369
+    - path: src/exploratory_analysis.py
+      hash: md5
+      md5: 6b46567da812b8b72a5a0387171905c0
+      size: 895
+    outs:
+    - path: data/explore/quality_summary.csv
+      hash: md5
+      md5: e32856253969855502720402d3aa2894
+      size: 4208
+    - path: data/explore/usable_columns.csv
+      hash: md5
+      md5: 6ee76a59c4ffbb57e5472e9409d0bd95
+      size: 2561
