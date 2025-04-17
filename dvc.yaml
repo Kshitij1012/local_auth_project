@@ -9,3 +9,13 @@ stages:
     - data/cleaned/housing_spend_clean.csv
     - data/cleaned/imd_data_clean.csv
     - data/cleaned/population_estimates_clean.csv
+  integrate_data:
+    cmd: python src/data_integration.py
+    deps:
+    - data/cleaned/housing_claimants_clean.csv
+    - data/cleaned/housing_spend_clean.csv
+    - data/cleaned/imd_data_clean.csv
+    - data/cleaned/population_estimates_clean.csv
+    - src/data_integration.py
+    outs:
+    - data/merged/merged_data.csv

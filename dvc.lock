@@ -28,3 +28,31 @@ stages:
       hash: md5
       md5: 0259d72925c4f1efeebec0bf602c6f84
       size: 49525
+  integrate_data:
+    cmd: python src/data_integration.py
+    deps:
+    - path: data/cleaned/housing_claimants_clean.csv
+      hash: md5
+      md5: a9b851ab742ccc085681b1d8984a6584
+      size: 21493
+    - path: data/cleaned/housing_spend_clean.csv
+      hash: md5
+      md5: 798a488bff7fa5f7cf3d73116881811d
+      size: 176568
+    - path: data/cleaned/imd_data_clean.csv
+      hash: md5
+      md5: b4c81cae71be8fd046dac9a4e73d1afb
+      size: 10781
+    - path: data/cleaned/population_estimates_clean.csv
+      hash: md5
+      md5: 0259d72925c4f1efeebec0bf602c6f84
+      size: 49525
+    - path: src/data_integration.py
+      hash: md5
+      md5: d1bc7abdc8b1c1938f7c98d4683d8745
+      size: 778
+    outs:
+    - path: data/merged/merged_data.csv
+      hash: md5
+      md5: a51ee60bf9fbcb9eb8445d1fb9b9fb70
+      size: 188369
