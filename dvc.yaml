@@ -1,0 +1,11 @@
+stages:
+  prepare_data:
+    cmd: python src/data_preparation.py
+    deps:
+    - data/Dataset.xlsx
+    - src/data_preparation.py
+    outs:
+    - data/cleaned/housing_claimants_clean.csv
+    - data/cleaned/housing_spend_clean.csv
+    - data/cleaned/imd_data_clean.csv
+    - data/cleaned/population_estimates_clean.csv

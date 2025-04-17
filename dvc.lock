@@ -1,13 +1,13 @@
 schema: '2.0'
 stages:
   prepare_data:
-    cmd: python src/01_data_preparation.py
+    cmd: python src/data_preparation.py
     deps:
     - path: data/Dataset.xlsx
       hash: md5
       md5: 9f572dc4039fcbf503d23dc6d63074c4
       size: 354405
-    - path: src/01_data_preparation.py
+    - path: src/data_preparation.py
       hash: md5
       md5: babcdcc394fb43b720516d3646c01f28
       size: 2396
