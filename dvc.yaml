@@ -27,3 +27,13 @@ stages:
     outs:
     - data/explore/quality_summary.csv
     - data/explore/usable_columns.csv
+  model_selection:
+    cmd: python src/model_selection.py
+    deps:
+    - data/merged/merged_data.csv
+    - src/model_selection.py
+    params:
+    - model_selection.n_clusters
+    outs:
+    - data/model/clustered_data.csv
+    - data/model/final_selection.csv
