@@ -39,3 +39,9 @@ for name, path in paths.items():
         print(f"❌ File not found: {path}")
     except Exception as e:
         print(f"❌ Error while summarizing {name}: {e}")
+
+
+import pandas as pd
+
+df = pd.read_csv("data/merged/merged_data.csv")
+print("Actual Columns in File:\n", df.columns.tolist())

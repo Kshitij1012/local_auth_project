@@ -1,60 +1,69 @@
 import pandas as pd
-import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 import os
 
-# Load data
-df = pd.read_csv("data/clustered/clustered_data.csv")
+# === Load Data === #
+clustered_path = "data/model/clustered_data.csv"
+final_selection_path = "data/model/final_selection.csv"
 
-# Count and calculate %
-cluster_counts = df['Cluster'].value_counts(normalize=True).reset_index()
-cluster_counts.columns = ['Cluster', 'Percentage']
-cluster_counts['Cluster'] = cluster_counts['Cluster'].astype(int)
-cluster_counts['authorities_to_select'] = np.maximum((cluster_counts['Percentage'] * 10).round().astype(int), 1)
+os.makedirs("data/results", exist_ok=True)
+os.makedirs("plots", exist_ok=True)
 
-# Select diverse authorities
-selected = pd.DataFrame()
-for _, row in cluster_counts.iterrows():
-    subset = df[df['Cluster'] == row['Cluster']]
-    diverse = subset.drop_duplicates(subset=['Spend_Quartile', 'Population_Quartile', 'IMD_Quartile'])
-    selected = pd.concat([selected, diverse.head(row['authorities_to_select'])])
+cluster_df = pd.read_csv(clustered_path)
+selected_df = pd.read_csv(final_selection_path)
 
-# Add selection reasoning
-conditions = [
-    (selected['IMD_Quartile'] == 4) & (selected['Spend_Quartile'] == 4),
-    (selected['IMD_Quartile'] == 4) & (selected['Spend_Quartile'] == 3),
-    (selected['IMD_Quartile'] == 3) & (selected['Spend_Quartile'] == 4),
-    (selected['IMD_Quartile'] == 3) & (selected['Spend_Quartile'] == 3),
-    (selected['IMD_Quartile'] == 2) & (selected['Spend_Quartile'] == 3),
-    (selected['IMD_Quartile'] == 1) & (selected['Spend_Quartile'] == 1),
-]
+# === Select One Authority for Briefing === #
+briefing_df = selected_df.copy()
+briefing_details = pd.merge(briefing_df, cluster_df, on=["Local_authority_code", "Local authority name", "Cluster"], how="left")
 
-reasons = [
-    "High deprivation & high spend",
-    "High deprivation & moderate spend",
-    "Moderate deprivation & high spend",
-    "Balanced resources & need",
-    "Efficient use in less deprived areas",
-    "Low deprivation & low spend",
-]
+# === Save Briefing Sheet === #
+briefing_details.to_excel("data/results/briefing.xlsx", index=False)
 
-selected['reason_for_selection'] = np.select(conditions, reasons, default="Diverse profile")
+# === Plot 1: Spend vs Population Scatter with Clusters === #
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=cluster_df,
+                x="Total_population", y="Total_spend",
+                hue="Cluster", palette="Set2", s=100)
+plt.title("Cluster-wise Spend vs Population")
+plt.xlabel("Total Population")
+plt.ylabel("Total Spend")
+plt.legend(title="Cluster")
+plt.tight_layout()
+plt.savefig("plots/cluster_scatter.png")
+plt.close()
 
-# Add cluster reasoning
-cluster_reason_map = {
-    1: "Low spend and deprivation",
-    2: "High population & diverse spend",
-    3: "Balanced resource areas",
-    4: "High deprivation, varied spend",
-    5: "High spend & population"
-}
+# === Plot 2: Average Spend by Cluster === #
+plt.figure(figsize=(8, 5))
+avg_spend = cluster_df.groupby("Cluster")["Total_spend"].mean().reset_index()
+sns.barplot(data=avg_spend, x="Cluster", y="Total_spend", palette="Set3")
+plt.title("Average Total Spend by Cluster")
+plt.xlabel("Cluster")
+plt.ylabel("Average Spend")
+plt.tight_layout()
+plt.savefig("plots/spend_by_cluster.png")
+plt.close()
 
-selected['reason_for_cluster'] = selected['Cluster'].map(cluster_reason_map)
+# === Plot 3: Average IMD Score by Cluster === #
+plt.figure(figsize=(8, 5))
+avg_imd = cluster_df.groupby("Cluster")["IMD - Average score"].mean().reset_index()
+sns.barplot(data=avg_imd, x="Cluster", y="IMD - Average score", palette="Set1")
+plt.title("Average IMD Score by Cluster")
+plt.xlabel("Cluster")
+plt.ylabel("Average IMD Score")
+plt.tight_layout()
+plt.savefig("plots/bar_avg_imd.png")  
+plt.close()
 
-# Final output
-final_report = selected[[
-    'Local_authority_name', 'Spend_Quartile', 'Population_Quartile', 'IMD_Quartile',
-    'Cluster', 'reason_for_selection', 'reason_for_cluster']]
+# === Plot 4: Stacked Bar Chart - Spend Quartile by Cluster === #
+quartile_counts = cluster_df.groupby(["Cluster", "Spend_Quartile"]).size().reset_index(name="count")
+quartile_pivot = quartile_counts.pivot(index="Cluster", columns="Spend_Quartile", values="count").fillna(0)
+quartile_pivot.plot(kind="bar", stacked=True, figsize=(10, 6), colormap="Pastel1")
+plt.title("Spend Quartile Distribution Across Clusters")
+plt.xlabel("Cluster")
+plt.ylabel("Count")
+plt.tight_layout()
+plt.savefig("plots/spend_quartiles_by_cluster.png")
+plt.close()
 
-os.makedirs("data/final", exist_ok=True)
-final_report.to_csv("data/final/final_report.csv", index=False)
-print("Stage 5 complete: Final report saved.")
+print("Stage 5 complete: Results generated including briefing and charts.")

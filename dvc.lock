@@ -99,3 +99,39 @@ stages:
       hash: md5
       md5: 3590435d64f24e8c8178c763c11526af
       size: 1099
+  results:
+    cmd: python src/results.py
+    deps:
+    - path: data/model/clustered_data.csv
+      hash: md5
+      md5: 5b5564d4e3bd6eea3b5c187fb3f85216
+      size: 35702
+    - path: data/model/final_selection.csv
+      hash: md5
+      md5: 3590435d64f24e8c8178c763c11526af
+      size: 1099
+    - path: src/results.py
+      hash: md5
+      md5: 0dca53e160353d218f1f0db3295cf016
+      size: 2613
+    outs:
+    - path: data/results/briefing.xlsx
+      hash: md5
+      md5: 975479f16037afb43587356a6f91e9be
+      size: 7173
+    - path: plots/bar_avg_imd.png
+      hash: md5
+      md5: 11745b4561a7dac1056c74bd80360d8a
+      size: 15453
+    - path: plots/cluster_scatter.png
+      hash: md5
+      md5: 2549a990b0220954619af5dc7f049573
+      size: 53885
+    - path: plots/spend_by_cluster.png
+      hash: md5
+      md5: 72b4ae457b44c681e0153f2cd7a6baf7
+      size: 19862
+    - path: plots/spend_quartiles_by_cluster.png
+      hash: md5
+      md5: 70118a39d7dbef0704255e0178bdb791
+      size: 19587
