@@ -76,3 +76,26 @@ stages:
       hash: md5
       md5: 0059dbe5a70e2766569b2572c67512fd
       size: 14714
+  model_selection:
+    cmd: python src/model_selection.py
+    deps:
+    - path: data/merged/merged_data.csv
+      hash: md5
+      md5: a2cb30afe11403dc3e9325fa7a4439b5
+      size: 236789
+    - path: src/model_selection.py
+      hash: md5
+      md5: 6cb82f951f85a017d7a126f59e977689
+      size: 4817
+    params:
+      params.yaml:
+        model_selection.n_clusters: 5
+    outs:
+    - path: data/model/clustered_data.csv
+      hash: md5
+      md5: 5b5564d4e3bd6eea3b5c187fb3f85216
+      size: 35702
+    - path: data/model/final_selection.csv
+      hash: md5
+      md5: 3590435d64f24e8c8178c763c11526af
+      size: 1099

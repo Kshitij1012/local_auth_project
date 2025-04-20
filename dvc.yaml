@@ -37,3 +37,15 @@ stages:
     outs:
     - data/model/clustered_data.csv
     - data/model/final_selection.csv
+  results:
+    cmd: python src/results.py
+    deps:
+    - data/model/clustered_data.csv
+    - data/model/final_selection.csv
+    - src/results.py
+    outs:
+    - data/results/briefing.xlsx
+    - plots/bar_avg_imd.png
+    - plots/cluster_scatter.png
+    - plots/spend_by_cluster.png
+    - plots/spend_quartiles_by_cluster.png
