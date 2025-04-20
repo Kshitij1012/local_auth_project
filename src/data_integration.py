@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-# === Load Cleaned CSV Files === #
+
 spend_path = "data/cleaned/housing_spend_clean.csv"
 claimants_path = "data/cleaned/housing_claimants_clean.csv"
 population_path = "data/cleaned/population_estimates_clean.csv"
@@ -12,13 +12,13 @@ housing_claimants = pd.read_csv(claimants_path)
 population_estimates = pd.read_csv(population_path)
 imd_data = pd.read_csv(imd_path)
 
-# === Check Row Counts & Unique Authority Codes === #
+# === Checking Row Counts & Unique Authority Codes === #
 print("Housing Spend -", housing_spend.shape, "Unique codes:", housing_spend['Local_authority_code'].nunique())
 print("Housing Claimants -", housing_claimants.shape, "Unique codes:", housing_claimants['Local_authority_code'].nunique())
 print("Population Estimates -", population_estimates.shape, "Unique codes:", population_estimates['Local_authority_code'].nunique())
 print("IMD Data -", imd_data.shape, "Unique codes:", imd_data['Local_authority_code'].nunique())
 
-# === Compare Mismatched Authority Codes === #
+# === Comparing Mismatched Authority Codes === #
 spend_codes = set(housing_spend['Local_authority_code'])
 claimant_codes = set(housing_claimants['Local_authority_code'])
 population_codes = set(population_estimates['Local_authority_code'])
@@ -31,7 +31,7 @@ print("Population not in Spend:", population_codes - spend_codes)
 print("Spend not in IMD:", spend_codes - imd_codes)
 print("IMD not in Spend:", imd_codes - spend_codes)
 
-# === Harmonize Names Again (Safety) === #
+# === Harmonise Names Again #
 authority_mapping = {
     "Aylesbury Vale": "Buckinghamshire",
     "South Bucks": "Buckinghamshire",
@@ -83,7 +83,7 @@ merged = merged[merged['Local_authority_code'] != 'E06000053']
 if 'Total_spend' in merged.columns:
     merged['Total_spend'] = pd.to_numeric(merged['Total_spend'], errors='coerce')
 
-# === Save Merged Dataset === #
+
 os.makedirs("data/merged", exist_ok=True)
 merged.to_csv("data/merged/merged_data.csv", index=False)
 print("Stage 2 complete: Data integrated and saved.")
