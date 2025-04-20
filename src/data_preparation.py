@@ -74,7 +74,7 @@ df_claimants = harmonize(df_claimants, "Local authority name")
 df_population = harmonize(df_population, "local authority: district / unitary (as of April 2021)")
 df_imd = harmonize(df_imd, "Local Authority District name (2019)")
 
-# === Step 7: Save Cleaned Files === #
+
 os.makedirs("data/cleaned", exist_ok=True)
 df_spend.to_csv("data/cleaned/housing_spend_clean.csv", index=False)
 df_claimants.to_csv("data/cleaned/housing_claimants_clean.csv", index=False)
