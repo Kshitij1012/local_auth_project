@@ -108,8 +108,7 @@ selected_df['reason_for_cluster'] = selected_df['Cluster'].map({
     5: "High spend & high population"
 })
 
-# === Save final output === #
 selected_df = selected_df[[name_col, id_col, 'Cluster', 'Spend_Quartile', 'Population_Quartile', 'IMD_Quartile', 'reason_for_selection', 'reason_for_cluster']]
 selected_df.to_csv("data/model/final_selection.csv", index=False)
 
-print("Stage 4 complete: Model selection, clustering, and authority shortlisting done.")
+print("Model selection, clustering, and authority shortlisting done.")
