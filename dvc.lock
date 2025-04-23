@@ -85,8 +85,8 @@ stages:
       size: 236789
     - path: src/model_selection.py
       hash: md5
-      md5: 6cb82f951f85a017d7a126f59e977689
-      size: 4817
+      md5: 5018dedb767c8d5be6cd6b0084b000ec
+      size: 6248
     params:
       params.yaml:
         model_selection.n_clusters: 5

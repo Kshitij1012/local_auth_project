@@ -1,0 +1,11 @@
+Local authority name,Local_authority_code,Cluster,Spend_Quartile,Population_Quartile,IMD_Quartile,reason_for_selection,reason_for_cluster
+Darlington,E06000005,1,3,1,4,High deprivation & moderate spend,Lowest spend & deprivation
+Warrington,E06000007,1,3,3,3,Moderate deprivation & moderate spend,Lowest spend & deprivation
+York,E06000014,1,3,3,1,Diverse mix including population and IMD,Lowest spend & deprivation
+Rutland,E06000017,1,1,1,1,Low deprivation & low spend,Lowest spend & deprivation
+North Somerset,E06000024,1,3,3,2,Low deprivation & moderate spend,Lowest spend & deprivation
+South Gloucestershire,E06000025,1,3,4,1,Diverse mix including population and IMD,Lowest spend & deprivation
+Hartlepool,E06000001,3,3,1,4,High deprivation & moderate spend,Moderate spend & population
+Middlesbrough,E06000002,3,3,2,4,High deprivation & moderate spend,Moderate spend & population
+Stockton-on-Tees,E06000004,3,3,3,4,High deprivation & moderate spend,Moderate spend & population
+"Kingston upon Hull, City of",E06000010,2,4,4,4,High deprivation & high spend,"High population, diverse spend"

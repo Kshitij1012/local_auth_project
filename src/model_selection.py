@@ -5,6 +5,15 @@ import seaborn as sns
 import os
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+import mlflow
+import mlflow.sklearn
+import yaml
+
+# === Load number of clusters from params.yaml === #
+with open("params.yaml", "r") as f:
+    params = yaml.safe_load(f)
+    print("Params loaded:", params)
+n_clusters = params["model_selection"]["n_clusters"]
 
 # === Load Data === #
 df = pd.read_csv("data/merged/merged_data.csv")
@@ -34,14 +43,10 @@ cluster_cols = [
 name_col = 'Local authority name'
 id_col = 'Local_authority_code'
 
-# === Select required columns === #
+# === Preprocess === #
 cluster_data = df[[name_col, id_col] + cluster_cols].copy()
-
-# === Convert to numeric (cleaning '...' or errors) === #
 for col in cluster_cols:
     cluster_data[col] = pd.to_numeric(cluster_data[col], errors='coerce')
-
-# === Drop rows with any missing or zero values === #
 cluster_data = cluster_data.dropna()
 cluster_data = cluster_data[(cluster_data[cluster_cols] != 0).all(axis=1)]
 
@@ -49,66 +54,91 @@ cluster_data = cluster_data[(cluster_data[cluster_cols] != 0).all(axis=1)]
 scaler = StandardScaler()
 cluster_scaled = scaler.fit_transform(cluster_data[cluster_cols])
 
-# === Clustering === #
-kmeans = KMeans(n_clusters=5, n_init=25, random_state=123)
-cluster_data['Cluster'] = kmeans.fit_predict(cluster_scaled) + 1
+# === MLflow Tracking Start === #
+with mlflow.start_run(run_name="kmeans_clustering"):
 
-# === Quartile Analysis === #
-cluster_data['Spend_Quartile'] = pd.qcut(cluster_data['Total_spend'], 4, labels=[1, 2, 3, 4])
-cluster_data['Population_Quartile'] = pd.qcut(cluster_data['Total_population'], 4, labels=[1, 2, 3, 4])
-cluster_data['IMD_Quartile'] = pd.qcut(cluster_data['IMD - Average score'], 4, labels=[1, 2, 3, 4])
+    kmeans = KMeans(n_clusters=n_clusters, n_init=25, random_state=123)
+    cluster_data['Cluster'] = kmeans.fit_predict(cluster_scaled) + 1
 
-# === Save clustered data === #
-os.makedirs("data/model", exist_ok=True)
-cluster_data.to_csv("data/model/clustered_data.csv", index=False)
+    mlflow.log_param("n_clusters", kmeans.n_clusters)
+    mlflow.log_metric("inertia", kmeans.inertia_)
 
-# === Final Selection === #
-total_select = 10
-cluster_counts = cluster_data['Cluster'].value_counts(normalize=True).reset_index()
-cluster_counts.columns = ['Cluster', 'Proportion']
-cluster_counts['To_Select'] = (cluster_counts['Proportion'] * total_select).round().astype(int)
-cluster_counts['To_Select'] = cluster_counts['To_Select'].apply(lambda x: max(1, x))
+    mlflow.sklearn.log_model(kmeans, artifact_path="kmeans_model")
 
-selected = []
-for _, row in cluster_counts.iterrows():
-    c = row['Cluster']
-    n = int(row['To_Select'])
-    group = cluster_data[cluster_data['Cluster'] == c]
-    unique_quartiles = group.drop_duplicates(subset=['Spend_Quartile', 'Population_Quartile', 'IMD_Quartile'])
-    selected.append(unique_quartiles.head(n))
+    os.makedirs("data/model", exist_ok=True)
+    cluster_data['Spend_Quartile'] = pd.qcut(cluster_data['Total_spend'], 4, labels=[1, 2, 3, 4])
+    cluster_data['Population_Quartile'] = pd.qcut(cluster_data['Total_population'], 4, labels=[1, 2, 3, 4])
+    cluster_data['IMD_Quartile'] = pd.qcut(cluster_data['IMD - Average score'], 4, labels=[1, 2, 3, 4])
+    cluster_data.to_csv("data/model/clustered_data.csv", index=False)
+    mlflow.log_artifact("data/model/clustered_data.csv")
+    mlflow.log_metric("num_records_used", len(cluster_data))
 
-selected_df = pd.concat(selected).head(total_select).copy()
+    os.makedirs("plots", exist_ok=True)
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=cluster_data, x="Total_population", y="Total_spend", hue="Cluster", palette="Set2", s=100)
+    plt.title("Cluster-wise Spend vs Population")
+    plt.xlabel("Total Population")
+    plt.ylabel("Total Spend")
+    plt.tight_layout()
+    scatter_path = "plots/cluster_scatter.png"
+    plt.savefig(scatter_path)
+    plt.close()
+    mlflow.log_artifact(scatter_path)
 
-# === Reasoning Columns === #
-selected_df['reason_for_selection'] = np.select(
-    [
-        (selected_df['IMD_Quartile'] == 4) & (selected_df['Spend_Quartile'] == 4),
-        (selected_df['IMD_Quartile'] == 4) & (selected_df['Spend_Quartile'] == 3),
-        (selected_df['IMD_Quartile'] == 3) & (selected_df['Spend_Quartile'] == 4),
-        (selected_df['IMD_Quartile'] == 3) & (selected_df['Spend_Quartile'] == 3),
-        (selected_df['IMD_Quartile'] == 2) & (selected_df['Spend_Quartile'] == 3),
-        (selected_df['IMD_Quartile'] == 1) & (selected_df['Spend_Quartile'] == 1)
-    ],
-    [
-        "High deprivation & high spend",
-        "High deprivation & moderate spend",
-        "Moderate deprivation & high spend",
-        "Moderate deprivation & moderate spend",
-        "Low deprivation & moderate spend",
-        "Low deprivation & low spend"
-    ],
-    default="Diverse mix including population and IMD"
-)
+    # === Revised Final Selection Logic === #
+    total_select = 10
+    selected = []
 
-selected_df['reason_for_cluster'] = selected_df['Cluster'].map({
-    1: "Lowest spend & deprivation",
-    2: "High population, diverse spend",
-    3: "Moderate spend & population",
-    4: "High deprivation, varying spend",
-    5: "High spend & high population"
-})
+    for cluster_id in sorted(cluster_data['Cluster'].unique()):
+        group = cluster_data[cluster_data['Cluster'] == cluster_id]
+        unique_diverse = group.drop_duplicates(subset=['Spend_Quartile', 'Population_Quartile', 'IMD_Quartile'])
+        selected.append(unique_diverse.head(1))
 
+<<<<<<< HEAD
 selected_df = selected_df[[name_col, id_col, 'Cluster', 'Spend_Quartile', 'Population_Quartile', 'IMD_Quartile', 'reason_for_selection', 'reason_for_cluster']]
 selected_df.to_csv("data/model/final_selection.csv", index=False)
 
 print("Model selection, clustering, and authority shortlisting done.")
+=======
+    remaining = total_select - len(selected)
+    if remaining > 0:
+        remaining_pool = cluster_data[~cluster_data.index.isin(pd.concat(selected).index)]
+        additional = remaining_pool.drop_duplicates(subset=['Spend_Quartile', 'Population_Quartile', 'IMD_Quartile'])
+        selected.append(additional.head(remaining))
+
+    selected_df = pd.concat(selected).head(total_select).copy()
+
+    selected_df['reason_for_selection'] = np.select(
+        [
+            (selected_df['IMD_Quartile'] == 4) & (selected_df['Spend_Quartile'] == 4),
+            (selected_df['IMD_Quartile'] == 4) & (selected_df['Spend_Quartile'] == 3),
+            (selected_df['IMD_Quartile'] == 3) & (selected_df['Spend_Quartile'] == 4),
+            (selected_df['IMD_Quartile'] == 3) & (selected_df['Spend_Quartile'] == 3),
+            (selected_df['IMD_Quartile'] == 2) & (selected_df['Spend_Quartile'] == 3),
+            (selected_df['IMD_Quartile'] == 1) & (selected_df['Spend_Quartile'] == 1)
+        ],
+        [
+            "High deprivation & high spend",
+            "High deprivation & moderate spend",
+            "Moderate deprivation & high spend",
+            "Moderate deprivation & moderate spend",
+            "Low deprivation & moderate spend",
+            "Low deprivation & low spend"
+        ],
+        default="Diverse mix including population and IMD"
+    )
+
+    selected_df['reason_for_cluster'] = selected_df['Cluster'].map({
+        1: "Lowest spend & deprivation",
+        2: "High population, diverse spend",
+        3: "Moderate spend & population",
+        4: "High deprivation, varying spend",
+        5: "High spend & high population"
+    })
+
+    selected_df = selected_df[[name_col, id_col, 'Cluster', 'Spend_Quartile', 'Population_Quartile', 'IMD_Quartile', 'reason_for_selection', 'reason_for_cluster']]
+    selected_df.to_csv("data/model/final_selection.csv", index=False)
+    mlflow.log_artifact("data/model/final_selection.csv")
+
+print("Model selection, clustering, and authority shortlisting done.")
+>>>>>>> d54167e0 (Commit before pulling from remote)

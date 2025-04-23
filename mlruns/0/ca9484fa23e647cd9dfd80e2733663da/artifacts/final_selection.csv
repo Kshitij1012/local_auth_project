@@ -1,0 +1,11 @@
+Local authority name,Local_authority_code,Cluster,Spend_Quartile,Population_Quartile,IMD_Quartile,reason_for_selection,reason_for_cluster
+Darlington,E06000005,1,3,1,4,High deprivation & moderate spend,Lowest spend & deprivation
+"Kingston upon Hull, City of",E06000010,2,4,4,4,High deprivation & high spend,"High population, diverse spend"
+Hartlepool,E06000001,3,3,1,4,High deprivation & moderate spend,Moderate spend & population
+Manchester,E08000003,4,4,4,4,High deprivation & high spend,"High deprivation, varying spend"
+Birmingham,E08000025,5,4,4,4,High deprivation & high spend,High spend & high population
+Middlesbrough,E06000002,3,3,2,4,High deprivation & moderate spend,Moderate spend & population
+Stockton-on-Tees,E06000004,3,3,3,4,High deprivation & moderate spend,Moderate spend & population
+Warrington,E06000007,1,3,3,3,Moderate deprivation & moderate spend,Lowest spend & deprivation
+Blackpool,E06000009,3,4,2,4,High deprivation & high spend,Moderate spend & population
+East Riding of Yorkshire,E06000011,3,3,4,2,Low deprivation & moderate spend,Moderate spend & population

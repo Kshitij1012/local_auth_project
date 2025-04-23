@@ -1,0 +1,15 @@
+artifact_uri: file:///F:/Interview%20answers/Health%20Innovation/local_auth_project/mlruns/0/0b5a149a82894620a7a8160e03f9bdb9/artifacts
+end_time: 1745118320509
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0b5a149a82894620a7a8160e03f9bdb9
+run_name: kmeans_clustering
+run_uuid: 0b5a149a82894620a7a8160e03f9bdb9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1745118317084
+status: 3
+tags: []
+user_id: kshit

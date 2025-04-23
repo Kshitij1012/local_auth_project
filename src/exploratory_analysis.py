@@ -50,6 +50,27 @@ plt.tight_layout()
 plt.savefig("plots/total_spend_distribution.png")
 plt.close()
 
+
+# === Scatter Plot: Total Population vs Spend (colored by IMD quartile) === #
+if 'IMD - Average score' in df.columns:
+    df['IMD_Quartile'] = pd.qcut(df['IMD - Average score'], 4, labels=['Low', 'Mid-Low', 'Mid-High', 'High'])
+    
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df,
+                    x='Total_population',
+                    y='Total_spend',
+                    hue='IMD_Quartile',
+                    palette='coolwarm',
+                    s=80)
+    plt.title("Population vs Spend by IMD Quartile")
+    plt.xlabel("Total Population")
+    plt.ylabel("Total Spend")
+    plt.legend(title="IMD Quartile")
+    plt.tight_layout()
+    plt.savefig("plots/population_vs_spend_by_imd.png")
+    plt.close()
+
+    
 # === Histogram: Total Population === #
 plt.figure(figsize=(8, 5))
 sns.histplot(df['Total_population'].dropna(), bins=30, kde=False, color='lightgreen')
