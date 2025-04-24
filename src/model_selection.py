@@ -15,7 +15,6 @@ with open("params.yaml", "r") as f:
     print("Params loaded:", params)
 n_clusters = params["model_selection"]["n_clusters"]
 
-# === Load Data === #
 df = pd.read_csv("data/merged/merged_data.csv")
 df.rename(columns={
     'Total_x': 'Total_spend',
@@ -50,11 +49,11 @@ for col in cluster_cols:
 cluster_data = cluster_data.dropna()
 cluster_data = cluster_data[(cluster_data[cluster_cols] != 0).all(axis=1)]
 
-# === Standardize === #
+# === Standardise === #
 scaler = StandardScaler()
 cluster_scaled = scaler.fit_transform(cluster_data[cluster_cols])
 
-# === MLflow Tracking Start === #
+# === MLflow Tracking  === #
 with mlflow.start_run(run_name="kmeans_clustering"):
 
     kmeans = KMeans(n_clusters=n_clusters, n_init=25, random_state=123)
@@ -85,7 +84,7 @@ with mlflow.start_run(run_name="kmeans_clustering"):
     plt.close()
     mlflow.log_artifact(scatter_path)
 
-    # === Revised Final Selection Logic === #
+    # === Final Selection Logic === #
     total_select = 10
     selected = []
 
