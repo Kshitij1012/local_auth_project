@@ -79,12 +79,10 @@ if 'Local Authority District name (2019)' in merged.columns:
 # === Remove Problematic Row === #
 merged = merged[merged['Local_authority_code'] != 'E06000053']
 
-# === Convert Spend to Numeric === #
+# === Converting Spend to Numeric === #
 if 'Total_spend' in merged.columns:
     merged['Total_spend'] = pd.to_numeric(merged['Total_spend'], errors='coerce')
 
-
-<<<<<<< HEAD
 =======
 print("Housing Spend - Total rows:", len(housing_spend), "Unique:", housing_spend["Local_authority_code"].nunique())
 print("Claimants - Total rows:", len(housing_claimants), "Unique:", housing_claimants["Local_authority_code"].nunique())
@@ -101,8 +99,7 @@ print("In Housing but not in IMD:", len(set(housing_spend["Local_authority_code"
 print("In IMD but not in Housing:", len(set(imd_data["Local_authority_code"]) - set(housing_spend["Local_authority_code"])))
 
 
-# === Save Merged Dataset === #
->>>>>>> d54167e0 (Commit before pulling from remote)
+# Save
 os.makedirs("data/merged", exist_ok=True)
 merged.to_csv("data/merged/merged_data.csv", index=False)
 print("Stage 2 complete: Data integrated and saved.")
