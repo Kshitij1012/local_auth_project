@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# === Load Integrated Data === #
 merged_path = "data/merged/merged_data.csv"
 df = pd.read_csv(merged_path)
 
@@ -13,7 +12,7 @@ df.rename(columns={
     'IMD - Average score ': 'IMD - Average score'  # Remove trailing space
 }, inplace=True)
 
-# === Check Shape & Unique Codes === #
+# === Checking Shape & Unique Codes === #
 print("Merged Data Shape:", df.shape)
 print("Unique Local Authority Codes:", df['Local_authority_code'].nunique())
 
