@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# === Load Data === #
+
 clustered_path = "data/model/clustered_data.csv"
 final_selection_path = "data/model/final_selection.csv"
 
