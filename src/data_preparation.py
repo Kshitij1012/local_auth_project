@@ -1,15 +1,14 @@
 import pandas as pd
 import os
 
-# === Load Excel sheet === #
 file_path = "data/Dataset.xlsx"
 df_raw = pd.read_excel(file_path, sheet_name="HousingServicesSpend", header=None)
 
-# === Step 1: Extract header rows === #
+# Extract header rows === #
 main_headers = df_raw.iloc[0].astype(str).str.replace(r"[\r\n]+", " ", regex=True).str.strip()
 sub_headers = df_raw.iloc[1].astype(str).str.replace(r"[\r\n]+", " ", regex=True).str.strip()
 
-# === Step 2: Construct final headers using R-like logic === #
+# =construct final headers using R-like logic === #
 final_headers = []
 current_main = ""
 
@@ -36,20 +35,20 @@ for i in range(len(main_headers)):
 
     final_headers.append(combined)
 
-# === Step 3: Apply final headers and drop first two rows === #
+# Apply final headers and drop first two rows === #
 df_spend = df_raw.iloc[2:].copy()
 df_spend.columns = final_headers
 
-# === Step 4: Rename authority code column === #
+# Rename authority code column === #
 if "_Local_authority_code" in df_spend.columns:
     df_spend.rename(columns={"_Local_authority_code": "Local_authority_code"}, inplace=True)
 
-# === Step 5: Load other sheets === #
+# Load other sheets === #
 df_claimants = pd.read_excel(file_path, sheet_name="HousingBenefitClaimants")
 df_population = pd.read_excel(file_path, sheet_name="PopulationEstimates")
 df_imd = pd.read_excel(file_path, sheet_name="IndexOfMultipleDeprivation")
 
-# === Step 6: Harmonize Authority Names === #
+# Harmonize Authority Names === #
 authority_mapping = {
     "Aylesbury Vale": "Buckinghamshire",
     "South Bucks": "Buckinghamshire",
